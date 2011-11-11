@@ -50,6 +50,8 @@ const bool Z_ENDSTOP_INVERT = false;
 // Comment out (using // at the start of the line) to disable SD support:
 #define SDSUPPORT
 
+// Comment out (using // at the start of the line) to disable Bluetooth support:
+#define BLUETOOTH
 
 //// ADVANCED SETTINGS - to tweak parameters
 
@@ -195,6 +197,10 @@ char uuid[] = "00000000-0000-0000-0000-000000000000";
   //#define DEBUG_MOVE_TIME //Enable this to time each move and print the result
   //#define DEBUG_HEAT_MGMT //Enable this to debug heat management. WARNING, this will cause axes to jitter!
   //#define DEBUG_DISABLE_CHECK_DURING_TRAVEL //Debug the namesake feature, see above in this file
+#endif
+
+#ifdef BLUETOOTH
+	#define BLUETOOTH_SERIAL Serial3
 #endif
 
 #endif
