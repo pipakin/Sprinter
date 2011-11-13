@@ -163,7 +163,10 @@ unsigned long stepper_inactive_time = 0;
   bool sdactive = false;
   bool savetosd = false;
   int16_t n;
-  
+  char fastxferbuffer[SD_FAST_XFER_CHUNK_BUFFER_SIZE];
+  int lastxferchar;
+  long xferbytes;
+
   void initsd(){
   sdactive = false;
   #if SDSS >- 1
@@ -762,6 +765,64 @@ inline void process_commands()
       case 29: //M29 - Stop SD write
         //processed in write to file routine above
         //savetosd = false;
+        break;
+        
+      case 30: //M30 - fast SD transfer
+        lastxferchar = 1;
+        xferbytes = 0;
+
+        if (!file.open(&root, strchr_pointer+4, O_CREAT | O_APPEND | O_WRITE | O_TRUNC))
+        {
+          SerialMgr.cur()->print("open failed, File: ");
+          SerialMgr.cur()->print(strchr_pointer + 4);
+          SerialMgr.cur()->print(".");
+        }else{
+          SerialMgr.cur()->print("Writing to file: ");
+          SerialMgr.cur()->println(strchr_pointer + 4);
+        }
+        
+        
+        SerialMgr.cur()->println("ok");
+        //read 512 bytes (or until \0 is recieved)
+        while(lastxferchar != 0)
+        {
+          for(int i=0;i<SD_FAST_XFER_CHUNK_SIZE;i++)
+          {
+            while(!SerialMgr.cur()->available())
+            {
+            }
+            lastxferchar = SerialMgr.cur()->read();
+            //buffer the data...
+            fastxferbuffer[i] = lastxferchar;
+            
+            xferbytes++;
+            
+            if(lastxferchar == 0)
+              break;
+          }
+          
+          fastxferbuffer[SD_FAST_XFER_CHUNK_SIZE] = 0;
+          
+          file.write(fastxferbuffer);
+                    
+          if(lastxferchar != 0)
+          {
+            SerialMgr.cur()->println("ok");
+          }else{
+            SerialMgr.cur()->print("Wrote ");
+            SerialMgr.cur()->print(xferbytes);
+            SerialMgr.cur()->println(" bytes.");
+          }
+          
+        }
+        
+        file.sync();
+        file.close();
+
+        break;
+      case 31: //M31 - high speed xfer capabilities
+        SerialMgr.cur()->print("RAW,");
+        SerialMgr.cur()->println(SD_FAST_XFER_CHUNK_SIZE);
         break;
 #endif
       case 42: //M42 -Change pin status via gcode

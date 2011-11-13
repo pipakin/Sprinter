@@ -50,6 +50,10 @@ const bool Z_ENDSTOP_INVERT = false;
 // Comment out (using // at the start of the line) to disable SD support:
 #define SDSUPPORT
 
+// Chuck size for fast sd transfer
+#define SD_FAST_XFER_CHUNK_SIZE 1024
+#define SD_FAST_XFER_CHUNK_BUFFER_SIZE 1025
+
 // Comment out (using // at the start of the line) to disable Bluetooth support:
 #define BLUETOOTH
 
