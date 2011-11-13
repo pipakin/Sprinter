@@ -768,6 +768,10 @@ inline void process_commands()
         break;
         
       case 30: //M30 - fast SD transfer
+        //force heater pins low
+        if(HEATER_0_PIN > -1) WRITE(HEATER_0_PIN,LOW);
+        if(HEATER_1_PIN > -1) WRITE(HEATER_1_PIN,LOW);
+		
         lastxferchar = 1;
         xferbytes = 0;
 
